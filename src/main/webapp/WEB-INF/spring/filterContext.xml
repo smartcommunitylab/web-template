@@ -35,9 +35,9 @@
 	<bean class="org.springframework.web.context.support.ServletContextPropertyPlaceholderConfigurer" />
 
 	<!-- AC SERVICE PROVIDER FILTER INTEGRATION -->
-	
+
 	<bean id="acClient" class="eu.trentorise.smartcampus.ac.provider.filters.AcClient">
-        <property name="endpointUrl" value="${ac.endpoint.url}" />
+		<property name="endpointUrl" value="${ac.endpoint.url}" />
     </bean>	
 	
 	

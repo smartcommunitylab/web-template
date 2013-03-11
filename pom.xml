@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>eu.trentorise.smartcampus</groupId>
 	<artifactId>smartcampus.web-template</artifactId>
@@ -21,8 +22,8 @@
 			<version>${ac-service-provider-api}</version>
 			<type>jar</type>
 		</dependency>
- 		
- 		<!-- this -->
+
+		<!-- this -->
 		<dependency>
 			<groupId>eu.trentorise.smartcampus</groupId>
 			<artifactId>ac-service-provider-filter</artifactId>
@@ -36,7 +37,7 @@
 			<version>${service-engine-client}</version>
 			<type>jar</type>
 		</dependency>
- 
+
 		<!-- Spring security -->
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -96,13 +97,19 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
-		
+
 		<!-- Smartcampus libs -->
 		<dependency>
 			<groupId>eu.trentorise.smartcampus</groupId>
 			<artifactId>profileservice.client</artifactId>
 			<version>1.0</version>
 			<type>jar</type>
+		</dependency>
+
+		<dependency>
+			<groupId>eu.trentorise.smartcampus</groupId>
+			<artifactId>filestorage.client</artifactId>
+			<version>1.0</version>
 		</dependency>
 	</dependencies>
 
@@ -126,7 +133,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
-		
+
 		<finalName>web-template</finalName>
 	</build>
 

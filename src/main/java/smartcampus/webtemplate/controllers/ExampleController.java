@@ -1,5 +1,12 @@
 package smartcampus.webtemplate.controllers;
 
+import it.sayservice.platform.smartplanner.data.message.Itinerary;
+import it.sayservice.platform.smartplanner.data.message.Position;
+import it.sayservice.platform.smartplanner.data.message.RType;
+import it.sayservice.platform.smartplanner.data.message.TType;
+import it.sayservice.platform.smartplanner.data.message.journey.SingleJourney;
+import it.sayservice.platform.smartplanner.data.message.otpbeans.Route;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -22,6 +29,7 @@ import eu.trentorise.smartcampus.filestorage.client.FilestorageException;
 import eu.trentorise.smartcampus.filestorage.client.model.AppAccount;
 import eu.trentorise.smartcampus.filestorage.client.model.Metadata;
 import eu.trentorise.smartcampus.filestorage.client.model.UserAccount;
+import eu.trentorise.smartcampus.journeyplanner.JourneyPlannerConnector;
 import eu.trentorise.smartcampus.profileservice.ProfileConnector;
 import eu.trentorise.smartcampus.profileservice.model.BasicProfile;
 
@@ -59,6 +67,60 @@ public class ExampleController {
 		}
 		return null;
 	}
+	
+	/*
+	 * Request all the routes for Trentino Trasporti (agencyId = "12")
+	 */
+	@RequestMapping(method = RequestMethod.GET, value = "/getroutes")
+	public @ResponseBody
+	List<Route> getRoutes(HttpServletRequest request,
+			HttpServletResponse response, HttpSession session)
+			throws IOException {
+		try {
+			String token = request.getHeader(AcProviderFilter.TOKEN_HEADER);
+			JourneyPlannerConnector journeyPlannerConnector = new JourneyPlannerConnector(serverAddress);
+			List<Route> routes = journeyPlannerConnector.getRoutes("12", token);
+			return routes;
+		} catch (Exception e) {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		}
+		return null;
+	}	
+	
+	/*
+	 * Plan a single journey
+	 */
+	@RequestMapping(method = RequestMethod.GET, value = "/plansinglejourney")
+	public @ResponseBody
+	List<Itinerary> planSingleJourney(HttpServletRequest request,
+			HttpServletResponse response, HttpSession session)
+			throws IOException {
+		try {
+			String token = request.getHeader(AcProviderFilter.TOKEN_HEADER);
+			JourneyPlannerConnector journeyPlannerConnector = new JourneyPlannerConnector(serverAddress);
+			SingleJourney req = new SingleJourney();
+			req.setDate("03/28/2013");
+			req.setDepartureTime("10:25");
+			Position from = new Position();
+			from.setLat("46.062005");
+			from.setLon("11.129169");
+			Position to = new Position();
+			to.setLat("46.068854");
+			to.setLon("11.151184");			
+			req.setFrom(from);
+			req.setTo(to);
+			TType[] tt = new TType[] { TType.TRANSIT}; 
+			req.setTransportTypes(tt);
+			req.setResultsNumber(1);
+			req.setRouteType(RType.fastest);
+			
+			List<Itinerary> itineraries = journeyPlannerConnector.planSingleJourney(req, token);
+			return itineraries;
+		} catch (Exception e) {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		}
+		return null;
+	}		
 
 	/*
 	 * Example to get all storage application accounts binded to a specific

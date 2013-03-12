@@ -111,6 +111,13 @@
 			<artifactId>filestorage.client</artifactId>
 			<version>1.0</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>eu.trentorise.smartcampus</groupId>
+			<artifactId>journeyplanner.client</artifactId>
+			<version>1.0</version>
+		</dependency>		
+		
 	</dependencies>
 
 	<build>

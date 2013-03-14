@@ -9,6 +9,7 @@ import it.sayservice.platform.smartplanner.data.message.otpbeans.Route;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,6 +25,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.trentorise.smartcampus.ac.provider.AcService;
 import eu.trentorise.smartcampus.ac.provider.filters.AcProviderFilter;
+import eu.trentorise.smartcampus.discovertrento.DiscoverTrentoConnector;
+import eu.trentorise.smartcampus.dt.model.ObjectFilter;
 import eu.trentorise.smartcampus.filestorage.client.Filestorage;
 import eu.trentorise.smartcampus.filestorage.client.FilestorageException;
 import eu.trentorise.smartcampus.filestorage.client.model.AppAccount;
@@ -36,6 +39,7 @@ import eu.trentorise.smartcampus.profileservice.model.BasicProfile;
 @Controller("exampleController")
 public class ExampleController {
 
+	private static final String EVENT_OBJECT = "eu.trentorise.smartcampus.dt.model.EventObject";
 	private static final Logger logger = Logger
 			.getLogger(ExampleController.class);
 	@Autowired
@@ -120,7 +124,29 @@ public class ExampleController {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 		return null;
+	}	
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/getconcerts")
+	public @ResponseBody
+	List<Itinerary> getConterts(HttpServletRequest request,
+			HttpServletResponse response, HttpSession session)
+			throws IOException {
+		try {
+			String token = request.getHeader(AcProviderFilter.TOKEN_HEADER);
+			DiscoverTrentoConnector discoverTrentoConnector = new DiscoverTrentoConnector(serverAddress);
+			ObjectFilter filter = new ObjectFilter();
+			filter.setClassName(EVENT_OBJECT);
+			filter.setType("Concerts");
+			filter.setFromTime(System.currentTimeMillis());
+			Map<String, List<?>> result = discoverTrentoConnector.getObjects(filter, token);
+			
+			return (List<Itinerary>)result.get(EVENT_OBJECT);
+		} catch (Exception e) {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		}
+		return null;
 	}		
+	
 
 	/*
 	 * Example to get all storage application accounts binded to a specific

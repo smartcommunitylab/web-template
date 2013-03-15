@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import eu.trentorise.smartcampus.ac.provider.AcService;
 import eu.trentorise.smartcampus.ac.provider.filters.AcProviderFilter;
 import eu.trentorise.smartcampus.discovertrento.DiscoverTrentoConnector;
+import eu.trentorise.smartcampus.dt.model.EventObject;
 import eu.trentorise.smartcampus.dt.model.ObjectFilter;
 import eu.trentorise.smartcampus.filestorage.client.Filestorage;
 import eu.trentorise.smartcampus.filestorage.client.FilestorageException;
@@ -128,7 +129,7 @@ public class ExampleController {
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/getconcerts")
 	public @ResponseBody
-	List<Itinerary> getConterts(HttpServletRequest request,
+	List<EventObject> getConterts(HttpServletRequest request,
 			HttpServletResponse response, HttpSession session)
 			throws IOException {
 		try {
@@ -140,7 +141,7 @@ public class ExampleController {
 			filter.setFromTime(System.currentTimeMillis());
 			Map<String, List<?>> result = discoverTrentoConnector.getObjects(filter, token);
 			
-			return (List<Itinerary>)result.get(EVENT_OBJECT);
+			return (List<EventObject>)result.get(EVENT_OBJECT);
 		} catch (Exception e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}

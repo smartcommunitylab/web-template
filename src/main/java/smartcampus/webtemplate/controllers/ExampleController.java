@@ -8,6 +8,7 @@ import it.sayservice.platform.smartplanner.data.message.journey.SingleJourney;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Route;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +26,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.trentorise.smartcampus.ac.provider.AcService;
 import eu.trentorise.smartcampus.ac.provider.filters.AcProviderFilter;
+import eu.trentorise.smartcampus.ac.provider.model.User;
+import eu.trentorise.smartcampus.communicator.CommunicatorConnector;
+import eu.trentorise.smartcampus.communicator.model.Notification;
 import eu.trentorise.smartcampus.discovertrento.DiscoverTrentoConnector;
 import eu.trentorise.smartcampus.dt.model.EventObject;
 import eu.trentorise.smartcampus.dt.model.ObjectFilter;
@@ -148,6 +152,39 @@ public class ExampleController {
 		return null;
 	}		
 	
+	@RequestMapping(method = RequestMethod.GET, value = "/getnotifications")
+	public @ResponseBody
+	List<Notification> getNotifications(HttpServletRequest request,
+			HttpServletResponse response, HttpSession session)
+			throws IOException {
+		try {
+			String token = request.getHeader(AcProviderFilter.TOKEN_HEADER);
+			
+			CommunicatorConnector communicatorConnector = new CommunicatorConnector(serverAddress);
+			
+			List<Notification> result = communicatorConnector.getNotifications(0L, 0, -1, token);
+			
+//			if (result != null && result.isEmpty()) {
+//				User user = retrieveUser(request, response);
+//				if (user == null) {
+//					response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+//					return null;
+//				}					
+//				
+//				Notification notification = new Notification();
+//				notification.setTitle("Test notification");
+//				List<String> receivers = new ArrayList<String>();
+//				receivers.add(user.getId().toString());
+//				communicatorConnector.sendUserNotification(notification, receivers, token);
+//			}
+			
+			return (List<Notification>)result;
+		} catch (Exception e) {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		}
+		return null;
+	}			
+	
 
 	/*
 	 * Example to get all storage application accounts binded to a specific
@@ -191,4 +228,21 @@ public class ExampleController {
 				"513da746975aa4412a383769");
 	}
 
+	private User retrieveUser(HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			String token = request.getHeader(AcProviderFilter.TOKEN_HEADER);
+			return acService.getUserByToken(token);
+		} catch (Exception e) {
+			logger.error("Exception checking token");
+			try {
+				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				return null;
+			} catch (IOException e1) {
+				logger.error("Exception sending HTTP error");
+				return null;
+			}
+		}
+	}
+	
 }

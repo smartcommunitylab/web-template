@@ -122,7 +122,13 @@
 			<groupId>eu.trentorise.smartcampus</groupId>
 			<artifactId>discovertrento.client</artifactId>
 			<version>1.0</version>
-		</dependency>				
+		</dependency>		
+		
+		<dependency>
+			<groupId>eu.trentorise.smartcampus</groupId>
+			<artifactId>communicator.client</artifactId>
+			<version>1.0</version>
+		</dependency>					
 		
 	</dependencies>
 

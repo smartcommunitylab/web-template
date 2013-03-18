@@ -8,7 +8,6 @@ import it.sayservice.platform.smartplanner.data.message.journey.SingleJourney;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Route;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +39,9 @@ import eu.trentorise.smartcampus.filestorage.client.model.UserAccount;
 import eu.trentorise.smartcampus.journeyplanner.JourneyPlannerConnector;
 import eu.trentorise.smartcampus.profileservice.ProfileConnector;
 import eu.trentorise.smartcampus.profileservice.model.BasicProfile;
+import eu.trentorise.smartcampus.socialservice.SocialService;
+import eu.trentorise.smartcampus.socialservice.SocialServiceException;
+import eu.trentorise.smartcampus.socialservice.model.Group;
 
 @Controller("exampleController")
 public class ExampleController {
@@ -76,7 +78,7 @@ public class ExampleController {
 		}
 		return null;
 	}
-	
+
 	/*
 	 * Request all the routes for Trentino Trasporti (agencyId = "12")
 	 */
@@ -87,15 +89,16 @@ public class ExampleController {
 			throws IOException {
 		try {
 			String token = request.getHeader(AcProviderFilter.TOKEN_HEADER);
-			JourneyPlannerConnector journeyPlannerConnector = new JourneyPlannerConnector(serverAddress);
+			JourneyPlannerConnector journeyPlannerConnector = new JourneyPlannerConnector(
+					serverAddress);
 			List<Route> routes = journeyPlannerConnector.getRoutes("12", token);
 			return routes;
 		} catch (Exception e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 		return null;
-	}	
-	
+	}
+
 	/*
 	 * Plan a single journey
 	 */
@@ -106,7 +109,8 @@ public class ExampleController {
 			throws IOException {
 		try {
 			String token = request.getHeader(AcProviderFilter.TOKEN_HEADER);
-			JourneyPlannerConnector journeyPlannerConnector = new JourneyPlannerConnector(serverAddress);
+			JourneyPlannerConnector journeyPlannerConnector = new JourneyPlannerConnector(
+					serverAddress);
 			SingleJourney req = new SingleJourney();
 			req.setDate("03/28/2013");
 			req.setDepartureTime("10:25");
@@ -115,22 +119,23 @@ public class ExampleController {
 			from.setLon("11.129169");
 			Position to = new Position();
 			to.setLat("46.068854");
-			to.setLon("11.151184");			
+			to.setLon("11.151184");
 			req.setFrom(from);
 			req.setTo(to);
-			TType[] tt = new TType[] { TType.TRANSIT}; 
+			TType[] tt = new TType[] { TType.TRANSIT };
 			req.setTransportTypes(tt);
 			req.setResultsNumber(1);
 			req.setRouteType(RType.fastest);
-			
-			List<Itinerary> itineraries = journeyPlannerConnector.planSingleJourney(req, token);
+
+			List<Itinerary> itineraries = journeyPlannerConnector
+					.planSingleJourney(req, token);
 			return itineraries;
 		} catch (Exception e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 		return null;
-	}	
-	
+	}
+
 	@RequestMapping(method = RequestMethod.GET, value = "/getconcerts")
 	public @ResponseBody
 	List<EventObject> getConterts(HttpServletRequest request,
@@ -138,20 +143,22 @@ public class ExampleController {
 			throws IOException {
 		try {
 			String token = request.getHeader(AcProviderFilter.TOKEN_HEADER);
-			DiscoverTrentoConnector discoverTrentoConnector = new DiscoverTrentoConnector(serverAddress);
+			DiscoverTrentoConnector discoverTrentoConnector = new DiscoverTrentoConnector(
+					serverAddress);
 			ObjectFilter filter = new ObjectFilter();
 			filter.setClassName(EVENT_OBJECT);
 			filter.setType("Concerts");
 			filter.setFromTime(System.currentTimeMillis());
-			Map<String, List<?>> result = discoverTrentoConnector.getObjects(filter, token);
-			
-			return (List<EventObject>)result.get(EVENT_OBJECT);
+			Map<String, List<?>> result = discoverTrentoConnector.getObjects(
+					filter, token);
+
+			return (List<EventObject>) result.get(EVENT_OBJECT);
 		} catch (Exception e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 		return null;
-	}		
-	
+	}
+
 	@RequestMapping(method = RequestMethod.GET, value = "/getnotifications")
 	public @ResponseBody
 	List<Notification> getNotifications(HttpServletRequest request,
@@ -159,32 +166,34 @@ public class ExampleController {
 			throws IOException {
 		try {
 			String token = request.getHeader(AcProviderFilter.TOKEN_HEADER);
-			
-			CommunicatorConnector communicatorConnector = new CommunicatorConnector(serverAddress);
-			
-			List<Notification> result = communicatorConnector.getNotifications(0L, 0, -1, token);
-			
-//			if (result != null && result.isEmpty()) {
-//				User user = retrieveUser(request, response);
-//				if (user == null) {
-//					response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-//					return null;
-//				}					
-//				
-//				Notification notification = new Notification();
-//				notification.setTitle("Test notification");
-//				List<String> receivers = new ArrayList<String>();
-//				receivers.add(user.getId().toString());
-//				communicatorConnector.sendUserNotification(notification, receivers, token);
-//			}
-			
-			return (List<Notification>)result;
+
+			CommunicatorConnector communicatorConnector = new CommunicatorConnector(
+					serverAddress);
+
+			List<Notification> result = communicatorConnector.getNotifications(
+					0L, 0, -1, token);
+
+			// if (result != null && result.isEmpty()) {
+			// User user = retrieveUser(request, response);
+			// if (user == null) {
+			// response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+			// return null;
+			// }
+			//
+			// Notification notification = new Notification();
+			// notification.setTitle("Test notification");
+			// List<String> receivers = new ArrayList<String>();
+			// receivers.add(user.getId().toString());
+			// communicatorConnector.sendUserNotification(notification,
+			// receivers, token);
+			// }
+
+			return (List<Notification>) result;
 		} catch (Exception e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 		return null;
-	}			
-	
+	}
 
 	/*
 	 * Example to get all storage application accounts binded to a specific
@@ -244,5 +253,18 @@ public class ExampleController {
 			}
 		}
 	}
-	
+
+	/*
+	 * Example to get some social information about a user. Example shows how
+	 * retrieve the group created by the user
+	 */
+	@RequestMapping(method = RequestMethod.GET, value = "/group")
+	public @ResponseBody
+	List<Group> getUsergroups(HttpServletRequest request)
+			throws SecurityException, SocialServiceException {
+		String token = request.getHeader(AcProviderFilter.TOKEN_HEADER);
+		SocialService socialsrv = new SocialService(serverAddress);
+		return socialsrv.getGroups(token);
+	}
+
 }

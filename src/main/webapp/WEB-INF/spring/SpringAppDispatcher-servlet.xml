@@ -24,6 +24,6 @@
 
 
 	<bean id="acClient" class="eu.trentorise.smartcampus.ac.provider.filters.AcClient">
-		<property name="endpointUrl" value="${ac.endpoint.url}"/>
+		<property name="endpointUrl" value="https://vas-dev.smartcampuslab.it/acService"/>
 	</bean>
 </beans>

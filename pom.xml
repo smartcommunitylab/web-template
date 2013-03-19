@@ -31,13 +31,6 @@
 			<type>jar</type>
 		</dependency>
 
-		<dependency>
-			<groupId>it.sayservice.platform</groupId>
-			<artifactId>service-engine-client</artifactId>
-			<version>${service-engine-client}</version>
-			<type>jar</type>
-		</dependency>
-
 		<!-- Spring security -->
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -161,5 +154,11 @@
 
 		<finalName>web-template</finalName>
 	</build>
+    <repositories>
+        <repository>
+            <id>SmartCampus</id>
+            <url>http://repository.smartcampuslab.it/content/groups/public</url>
+        </repository>
+    </repositories>
 
 </project>

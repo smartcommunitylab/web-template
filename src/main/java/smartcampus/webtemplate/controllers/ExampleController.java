@@ -136,6 +136,10 @@ public class ExampleController {
 		return null;
 	}
 
+
+	 /*
+	 * Get all the events whose category is "Concerts"
+	 */
 	@RequestMapping(method = RequestMethod.GET, value = "/getconcerts")
 	public @ResponseBody
 	List<EventObject> getConterts(HttpServletRequest request,
@@ -159,6 +163,9 @@ public class ExampleController {
 		return null;
 	}
 
+	/*
+	 * Get all notifications
+	 */
 	@RequestMapping(method = RequestMethod.GET, value = "/getnotifications")
 	public @ResponseBody
 	List<Notification> getNotifications(HttpServletRequest request,
@@ -166,34 +173,17 @@ public class ExampleController {
 			throws IOException {
 		try {
 			String token = request.getHeader(AcProviderFilter.TOKEN_HEADER);
-
-			CommunicatorConnector communicatorConnector = new CommunicatorConnector(
-					serverAddress);
-
-			List<Notification> result = communicatorConnector.getNotifications(
-					0L, 0, -1, token);
-
-			// if (result != null && result.isEmpty()) {
-			// User user = retrieveUser(request, response);
-			// if (user == null) {
-			// response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-			// return null;
-			// }
-			//
-			// Notification notification = new Notification();
-			// notification.setTitle("Test notification");
-			// List<String> receivers = new ArrayList<String>();
-			// receivers.add(user.getId().toString());
-			// communicatorConnector.sendUserNotification(notification,
-			// receivers, token);
-			// }
-
-			return (List<Notification>) result;
+			
+			CommunicatorConnector communicatorConnector = new CommunicatorConnector(serverAddress);
+			
+			List<Notification> result = communicatorConnector.getNotifications(0L, 0, -1, token);
+			
+			return (List<Notification>)result;
 		} catch (Exception e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 		return null;
-	}
+	}	
 
 	/*
 	 * Example to get all storage application accounts binded to a specific

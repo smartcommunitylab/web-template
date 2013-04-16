@@ -8,6 +8,7 @@ import it.sayservice.platform.smartplanner.data.message.journey.SingleJourney;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Route;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -19,14 +20,15 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.trentorise.smartcampus.ac.provider.AcService;
 import eu.trentorise.smartcampus.ac.provider.filters.AcProviderFilter;
-import eu.trentorise.smartcampus.ac.provider.model.User;
 import eu.trentorise.smartcampus.communicator.CommunicatorConnector;
+import eu.trentorise.smartcampus.communicator.CommunicatorConnectorException;
 import eu.trentorise.smartcampus.communicator.model.Notification;
 import eu.trentorise.smartcampus.discovertrento.DiscoverTrentoConnector;
 import eu.trentorise.smartcampus.dt.model.EventObject;
@@ -58,6 +60,13 @@ public class ExampleController {
 	@Autowired
 	@Value("${services.server}")
 	private String serverAddress;
+
+	/*
+	 * the base appName of the service. Configure it in webtemplate.properties
+	 */
+	@Autowired
+	@Value("${webapp.name}")
+	private String appName;
 
 	/*
 	 * Example to get the profile of the authenticated user.
@@ -136,8 +145,7 @@ public class ExampleController {
 		return null;
 	}
 
-
-	 /*
+	/*
 	 * Get all the events whose category is "Concerts"
 	 */
 	@RequestMapping(method = RequestMethod.GET, value = "/getconcerts")
@@ -156,7 +164,9 @@ public class ExampleController {
 			Map<String, List<?>> result = discoverTrentoConnector.getObjects(
 					filter, token);
 
-			return (List<EventObject>) result.get(EVENT_OBJECT);
+			@SuppressWarnings("unchecked")
+			List<EventObject> list = (List<EventObject>) result.get(EVENT_OBJECT);
+			return list;
 		} catch (Exception e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
@@ -173,17 +183,19 @@ public class ExampleController {
 			throws IOException {
 		try {
 			String token = request.getHeader(AcProviderFilter.TOKEN_HEADER);
-			
-			CommunicatorConnector communicatorConnector = new CommunicatorConnector(serverAddress);
-			
-			List<Notification> result = communicatorConnector.getNotifications(0L, 0, -1, token);
-			
-			return (List<Notification>)result;
+
+			CommunicatorConnector communicatorConnector = new CommunicatorConnector(
+					serverAddress, appName);
+
+			List<Notification> result = communicatorConnector.getNotifications(
+					0L, 0, -1, token);
+
+			return (List<Notification>) result;
 		} catch (Exception e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 		return null;
-	}	
+	}
 
 	/*
 	 * Example to get all storage application accounts binded to a specific
@@ -227,22 +239,7 @@ public class ExampleController {
 				"513da746975aa4412a383769");
 	}
 
-	private User retrieveUser(HttpServletRequest request,
-			HttpServletResponse response) {
-		try {
-			String token = request.getHeader(AcProviderFilter.TOKEN_HEADER);
-			return acService.getUserByToken(token);
-		} catch (Exception e) {
-			logger.error("Exception checking token");
-			try {
-				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				return null;
-			} catch (IOException e1) {
-				logger.error("Exception sending HTTP error");
-				return null;
-			}
-		}
-	}
+
 
 	/*
 	 * Example to get some social information about a user. Example shows how
@@ -255,6 +252,59 @@ public class ExampleController {
 		String token = request.getHeader(AcProviderFilter.TOKEN_HEADER);
 		SocialService socialsrv = new SocialService(serverAddress);
 		return socialsrv.getGroups(token);
+	}
+
+	
+
+	
+	/**
+	 * Register the user for the push notifications on this app
+	 * @param request
+	 * @throws SecurityException
+	 * @throws SocialServiceException
+	 * @throws CommunicatorConnectorException
+	 */
+	@RequestMapping(method = RequestMethod.GET, value = "/register/user/")
+	public @ResponseBody
+	boolean registerUser(HttpServletRequest request) throws SecurityException,
+			SocialServiceException, CommunicatorConnectorException {
+		logger.debug("registerUser - enter");
+		String token = request.getHeader(AcProviderFilter.TOKEN_HEADER);
+		String registrationId = request
+				.getHeader(CommunicatorConnector.REGISTRATIONID_HEADER);
+
+		CommunicatorConnector communicatorConnector = new CommunicatorConnector(
+				serverAddress, appName);
+		communicatorConnector.registerUser(token, registrationId);
+		return true;
+
+	}
+	
+	
+
+	/**
+	 * Register app for the push notifications server side
+	 * @param request
+	 * @param senderId
+	 * @throws SecurityException
+	 * @throws SocialServiceException
+	 * @throws CommunicatorConnectorException
+	 */
+	@RequestMapping(method = RequestMethod.GET, value = "/register/app/{senderId}")
+	public @ResponseBody
+	boolean registerApp(HttpServletRequest request,
+			@PathVariable("senderId") String senderId)
+			throws SecurityException, SocialServiceException,
+			CommunicatorConnectorException {
+		logger.debug("registerApp - enter");
+		String token = request.getHeader(AcProviderFilter.TOKEN_HEADER);
+
+		CommunicatorConnector communicatorConnector = new CommunicatorConnector(
+				serverAddress, appName);
+
+		communicatorConnector.registerApp(token, senderId);
+		return true;
+
 	}
 
 }

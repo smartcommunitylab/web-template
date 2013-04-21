@@ -8,8 +8,9 @@ import it.sayservice.platform.smartplanner.data.message.journey.SingleJourney;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Route;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -159,7 +160,7 @@ public class ExampleController {
 					serverAddress);
 			ObjectFilter filter = new ObjectFilter();
 			filter.setClassName(EVENT_OBJECT);
-			filter.setType("Concerts");
+			filter.setTypes(Collections.singletonList("Concerts"));
 			filter.setFromTime(System.currentTimeMillis());
 			Map<String, List<?>> result = discoverTrentoConnector.getObjects(
 					filter, token);

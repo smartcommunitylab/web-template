@@ -159,8 +159,8 @@ public class ExampleController {
 			DiscoverTrentoConnector discoverTrentoConnector = new DiscoverTrentoConnector(
 					serverAddress);
 			ObjectFilter filter = new ObjectFilter();
-			filter.setClassName(EVENT_OBJECT);
-			filter.setTypes(Collections.singletonList("Concerts"));
+		//	filter.setClassName(EVENT_OBJECT);
+		//	filter.setTypes(Collections.singletonList("Concerts"));
 			filter.setFromTime(System.currentTimeMillis());
 			Map<String, List<?>> result = discoverTrentoConnector.getObjects(
 					filter, token);
@@ -186,7 +186,7 @@ public class ExampleController {
 			String token = request.getHeader(AcProviderFilter.TOKEN_HEADER);
 
 			CommunicatorConnector communicatorConnector = new CommunicatorConnector(
-					serverAddress, appName);
+					serverAddress);
 
 			List<Notification> result = communicatorConnector.getNotifications(
 					0L, 0, -1, token);
@@ -257,55 +257,5 @@ public class ExampleController {
 
 	
 
-	
-	/**
-	 * Register the user for the push notifications on this app
-	 * @param request
-	 * @throws SecurityException
-	 * @throws SocialServiceException
-	 * @throws CommunicatorConnectorException
-	 */
-	@RequestMapping(method = RequestMethod.GET, value = "/register/user/")
-	public @ResponseBody
-	boolean registerUser(HttpServletRequest request) throws SecurityException,
-			SocialServiceException, CommunicatorConnectorException {
-		logger.debug("registerUser - enter");
-		String token = request.getHeader(AcProviderFilter.TOKEN_HEADER);
-		String registrationId = request
-				.getHeader(CommunicatorConnector.REGISTRATIONID_HEADER);
-
-		CommunicatorConnector communicatorConnector = new CommunicatorConnector(
-				serverAddress, appName);
-		communicatorConnector.registerUser(token, registrationId);
-		return true;
-
-	}
-	
-	
-
-	/**
-	 * Register app for the push notifications server side
-	 * @param request
-	 * @param senderId
-	 * @throws SecurityException
-	 * @throws SocialServiceException
-	 * @throws CommunicatorConnectorException
-	 */
-	@RequestMapping(method = RequestMethod.GET, value = "/register/app/{senderId}")
-	public @ResponseBody
-	boolean registerApp(HttpServletRequest request,
-			@PathVariable("senderId") String senderId)
-			throws SecurityException, SocialServiceException,
-			CommunicatorConnectorException {
-		logger.debug("registerApp - enter");
-		String token = request.getHeader(AcProviderFilter.TOKEN_HEADER);
-
-		CommunicatorConnector communicatorConnector = new CommunicatorConnector(
-				serverAddress, appName);
-
-		communicatorConnector.registerApp(token, senderId);
-		return true;
-
-	}
 
 }

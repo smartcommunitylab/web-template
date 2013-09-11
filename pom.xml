@@ -9,26 +9,16 @@
 	<properties>
 		<spring-version>3.1.0.RELEASE</spring-version>
 		<spring-security-version>3.1.0.RELEASE</spring-security-version>
-		<ac-service-provider-api>1.1</ac-service-provider-api>
-		<ac-service-provider-filter>1.1</ac-service-provider-filter>
-		<service-engine-client>1.4</service-engine-client>
 	</properties>
 
 	<dependencies>
 
+		<!-- Servlet and lib -->
 		<dependency>
-			<groupId>eu.trentorise.smartcampus</groupId>
-			<artifactId>ac-service-provider-api</artifactId>
-			<version>${ac-service-provider-api}</version>
-			<type>jar</type>
-		</dependency>
-
-		<!-- this -->
-		<dependency>
-			<groupId>eu.trentorise.smartcampus</groupId>
-			<artifactId>ac-service-provider-filter</artifactId>
-			<version>${ac-service-provider-filter}</version>
-			<type>jar</type>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<!-- Spring security -->
@@ -49,8 +39,6 @@
 		</dependency>
 
 		<!-- Spring -->
-
-
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
@@ -94,41 +82,48 @@
 		<!-- Smartcampus libs -->
 		<dependency>
 			<groupId>eu.trentorise.smartcampus</groupId>
-			<artifactId>profileservice.client</artifactId>
+			<artifactId>aac.client</artifactId>
 			<version>1.0</version>
 			<type>jar</type>
 		</dependency>
 
 		<dependency>
 			<groupId>eu.trentorise.smartcampus</groupId>
+			<artifactId>profileservice.client</artifactId>
+			<version>2.0</version>
+			<type>jar</type>
+		</dependency>
+
+		<dependency>
+			<groupId>eu.trentorise.smartcampus</groupId>
 			<artifactId>filestorage.client</artifactId>
+			<version>2.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>eu.trentorise.smartcampus</groupId>
+			<artifactId>mobilityservice.client</artifactId>
 			<version>1.0</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>eu.trentorise.smartcampus</groupId>
-			<artifactId>journeyplanner.client</artifactId>
+			<artifactId>territoryservice.client</artifactId>
 			<version>1.0</version>
-		</dependency>	
-		
-		<dependency>
-			<groupId>eu.trentorise.smartcampus</groupId>
-			<artifactId>discovertrento.client</artifactId>
-			<version>1.0</version>
-		</dependency>		
-		
+		</dependency>
+
 		<dependency>
 			<groupId>eu.trentorise.smartcampus</groupId>
 			<artifactId>communicator.client</artifactId>
-			<version>1.0</version>
-		</dependency>	
-		
+			<version>2.0</version>
+		</dependency>
+
 		<dependency>
 			<groupId>eu.trentorise.smartcampus</groupId>
 			<artifactId>socialservice.client</artifactId>
-			<version>1.0</version>
-		</dependency>					
-		
+			<version>2.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -154,11 +149,11 @@
 
 		<finalName>web-template</finalName>
 	</build>
-    <repositories>
-        <repository>
-            <id>SmartCampus</id>
-            <url>http://repository.smartcampuslab.it/content/groups/public</url>
-        </repository>
-    </repositories>
+	<repositories>
+		<repository>
+			<id>SmartCampus</id>
+			<url>http://repository.smartcampuslab.it/content/groups/public</url>
+		</repository>
+	</repositories>
 
 </project>

@@ -19,4 +19,15 @@
 
 	<!-- Scan controllers in this package -->
 	<context:component-scan base-package="smartcampus.webtemplate.controllers"/>
+	
+		<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+		<property name="viewResolvers">
+			<bean
+				class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+				<property name="prefix" value="/WEB-INF/jsp/"></property>
+				<property name="suffix" value=".jsp"></property>
+			</bean>
+		</property>
+	</bean>
 </beans>

@@ -35,11 +35,25 @@
 	<bean class="org.springframework.web.context.support.ServletContextPropertyPlaceholderConfigurer" />
 
 	<!-- AC SERVICE PROVIDER FILTER INTEGRATION -->
+		<http xmlns="http://www.springframework.org/schema/security" pattern="/css/**" security="none"/>
+  <http xmlns="http://www.springframework.org/schema/security" pattern="/img/**" security="none"/>
+  <http xmlns="http://www.springframework.org/schema/security" pattern="/js/**" security="none"/>
+  <http xmlns="http://www.springframework.org/schema/security" pattern="/lib/**" security="none"/>
+
 	
-	<sec:http entry-point-ref="forbEntryPoint" use-expressions="true" create-session="stateless">
-		<sec:custom-filter position="PRE_AUTH_FILTER" ref="authTokenFilter" />
-		 <sec:intercept-url pattern="/**" access="isFullyAuthenticated()" />
+	<sec:http pattern="/rest/**" entry-point-ref="forbEntryPoint" use-expressions="true" create-session="stateless">
+		 <sec:custom-filter position="PRE_AUTH_FILTER" ref="authTokenFilter" /> 
+		 <sec:intercept-url pattern="/**" access="isFullyAuthenticated()" />			
 	</sec:http>
+	 <sec:http pattern="/web/**"  disable-url-rewriting="true">
+        <sec:intercept-url pattern="/**" access="IS_AUTHENTICATED_FULLY" />              
+         <sec:form-login login-page="/login" /> 
+        <sec:logout invalidate-session="true" logout-url="/logout" delete-cookies="JSESSIONID,open_id_session_id,vasdevgoogle" logout-success-url="/"/>
+    </sec:http>
+	 
+
+	
+
 
 	<bean id="forbEntryPoint" class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint">
 	</bean>
@@ -53,7 +67,7 @@
 	</sec:authentication-manager>
 
 	<bean id="preauthAuthProvider" class="eu.trentorise.smartcampus.aac.conf.OAuthAuthenticationProvider">
-<!-- 	  <property name="tokenStore" ref="tokenStore"/>   -->
+ 	  <property name="tokenStore" ref="tokenStore"/>   
     <property name="aacURL" value="https://vas-dev.smartcampuslab.it/aac"/>  
      <property name="scope" value="smartcampus.profile.basicprofile.me"/>  
 	</bean>

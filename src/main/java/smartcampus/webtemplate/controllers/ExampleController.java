@@ -23,16 +23,26 @@ import it.sayservice.platform.smartplanner.data.message.journey.SingleJourney;
 import it.sayservice.platform.smartplanner.data.message.otpbeans.Route;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
+import eu.trentorise.smartcampus.aac.AACException;
+import eu.trentorise.smartcampus.aac.AACService;
+import eu.trentorise.smartcampus.aac.model.TokenData;
 import eu.trentorise.smartcampus.communicator.CommunicatorConnector;
 import eu.trentorise.smartcampus.communicator.CommunicatorConnectorException;
 import eu.trentorise.smartcampus.communicator.model.Notification;
@@ -57,50 +67,107 @@ import eu.trentorise.smartcampus.territoryservice.model.ObjectFilter;
 @Controller
 public class ExampleController {
 
-	private BasicProfileService profileService = new BasicProfileService("https://vas-dev.smartcampuslab.it/aac");
-	private MobilityDataService mobilityDataService = new MobilityDataService("https://vas-dev.smartcampuslab.it/core.mobility");
-	private MobilityPlannerService mobilityPlannerService = new MobilityPlannerService("https://vas-dev.smartcampuslab.it/core.mobility");
-	private TerritoryService territoryService = new TerritoryService("https://vas-dev.smartcampuslab.it/core.territory");
+	private BasicProfileService profileService = new BasicProfileService(
+			"https://vas-dev.smartcampuslab.it/aac");
+	private MobilityDataService mobilityDataService = new MobilityDataService(
+			"https://vas-dev.smartcampuslab.it/core.mobility");
+	private MobilityPlannerService mobilityPlannerService = new MobilityPlannerService(
+			"https://vas-dev.smartcampuslab.it/core.mobility");
+	private TerritoryService territoryService = new TerritoryService(
+			"https://vas-dev.smartcampuslab.it/core.territory");
 	private CommunicatorConnector communicatorConnector = null;
-	private Filestorage filestorage = new Filestorage("https://vas-dev.smartcampuslab.it/core.filestorage", "rk");
-	private SocialService socialService = new SocialService("https://vas-dev.smartcampuslab.it/core.social");
+	private Filestorage filestorage = new Filestorage(
+			"https://vas-dev.smartcampuslab.it/core.filestorage", "rk");
+	private SocialService socialService = new SocialService(
+			"https://vas-dev.smartcampuslab.it/core.social");
+	private AACService aacService = new AACService(
+			"https://vas-dev.smartcampuslab.it/aac",
+			"a5d402a1-8fcc-46b0-993e-bd97e37eef9c",
+			"8fa7819d-9fa1-4fbd-8fef-e3873df7dd85");
+	
+	
+	private String userToken="";
 
 	public ExampleController() {
 		super();
 		try {
-			communicatorConnector = new CommunicatorConnector("https://vas-dev.smartcampuslab.it/core.communicator", "rk");
+			communicatorConnector = new CommunicatorConnector(
+					"https://vas-dev.smartcampuslab.it/core.communicator", "rk");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
+	@RequestMapping(method = RequestMethod.GET, value = "/")
+	public String index(HttpServletRequest request) {
+
+		return "index";
+	}
+	@RequestMapping(method = RequestMethod.GET, value = "/secure")
+	public ModelAndView x(HttpServletRequest request) throws SecurityException, ProfileServiceException {
+		 
+		
+			Map<String,Object> model = new HashMap<String, Object>();	
+			model.put("token", userToken);	
+			BasicProfile bp=profileService.getBasicProfile(userToken);
+			model.put("name", bp.getName());	
+			model.put("surname", bp.getSurname());	
+		 return new ModelAndView("secure",model);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/check")
+	public ModelAndView securePage(HttpServletRequest request,@RequestParam(required=false) String code) throws SecurityException, AACException {
+		
+		String redirectUri = "http://localhost:8080/web-template/check";	
+
+		
+		userToken= aacService.exchngeCodeForToken(code, redirectUri).getAccess_token();		
+
+		return new ModelAndView("redirect:/secure");
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/login")
+	public ModelAndView secure(HttpServletRequest request) {
+		String redirectUri = "http://localhost:8080/web-template/check";
+
+		return new ModelAndView("redirect:"
+				+ aacService.generateAuthorizationURIForCodeFlow(redirectUri,
+						null, "smartcampus.profile.basicprofile.me", null));
+	}
+	
+	
+
 	/*
 	 * Example to get the profile of the authenticated user.
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = "/profile")
+	@RequestMapping(method = RequestMethod.GET, value = "/rest/profile")
 	public @ResponseBody
-	BasicProfile getProfile(HttpServletRequest request) throws SecurityException, ProfileServiceException {
-		BasicProfile profile = profileService.getBasicProfile(getToken(request));
+	BasicProfile getProfile(HttpServletRequest request)
+			throws SecurityException, ProfileServiceException {
+		BasicProfile profile = profileService
+				.getBasicProfile(getToken(request));
 		return profile;
 	}
 
 	/*
 	 * Request all the routes for Trentino Trasporti (agencyId = "12")
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = "/routes")
+	@RequestMapping(method = RequestMethod.GET, value = "/rest/routes")
 	public @ResponseBody
 	List<Route> getRoutes(HttpServletRequest request)
 			throws MobilityServiceException {
-		List<Route> routes = mobilityDataService.getRoutes("12", getToken(request));
+		List<Route> routes = mobilityDataService.getRoutes("12",
+				getToken(request));
 		return routes;
 	}
 
 	/*
 	 * Plan a single journey
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = "/plansinglejourney")
+	@RequestMapping(method = RequestMethod.GET, value = "/rest/plansinglejourney")
 	public @ResponseBody
-	List<Itinerary> planSingleJourney(HttpServletRequest request) throws MobilityServiceException {
+	List<Itinerary> planSingleJourney(HttpServletRequest request)
+			throws MobilityServiceException {
 		SingleJourney req = new SingleJourney();
 		req.setDate("03/28/2013");
 		req.setDepartureTime("10:25");
@@ -117,16 +184,18 @@ public class ExampleController {
 		req.setResultsNumber(1);
 		req.setRouteType(RType.fastest);
 
-		List<Itinerary> itineraries = mobilityPlannerService.planSingleJourney(req, getToken(request));
+		List<Itinerary> itineraries = mobilityPlannerService.planSingleJourney(
+				req, getToken(request));
 		return itineraries;
 	}
 
 	/*
 	 * Get all the events whose category is "Concerts"
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = "/concerts")
+	@RequestMapping(method = RequestMethod.GET, value = "/rest/concerts")
 	public @ResponseBody
-	List<EventObject> getConterts(HttpServletRequest request) throws TerritoryServiceException {
+	List<EventObject> getConterts(HttpServletRequest request)
+			throws TerritoryServiceException {
 		ObjectFilter filter = new ObjectFilter();
 		filter.setTypes(Collections.singletonList("Concerts"));
 		filter.setFromTime(System.currentTimeMillis());
@@ -136,10 +205,13 @@ public class ExampleController {
 	/*
 	 * Get all notifications
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = "/notification")
+	@RequestMapping(method = RequestMethod.GET, value = "/rest/notification")
 	public @ResponseBody
-	List<Notification> getNotifications(HttpServletRequest request) throws CommunicatorConnectorException {
-		List<Notification> result = communicatorConnector.getNotificationsByUser(0L, 0, -1, getToken(request)).getNotifications();
+	List<Notification> getNotifications(HttpServletRequest request)
+			throws CommunicatorConnectorException {
+		List<Notification> result = communicatorConnector
+				.getNotificationsByUser(0L, 0, -1, getToken(request))
+				.getNotifications();
 		return (List<Notification>) result;
 	}
 
@@ -147,43 +219,47 @@ public class ExampleController {
 	 * Example to get all storage user accounts owned by the authenticated user
 	 * bound to an application.
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = "/useraccount")
+	@RequestMapping(method = RequestMethod.GET, value = "/rest/useraccount")
 	public @ResponseBody
-	Account getUserAccounts(HttpServletRequest request) throws FilestorageException {
+	Account getUserAccounts(HttpServletRequest request)
+			throws FilestorageException {
 		return filestorage.getAccountByUser(getToken(request));
 	}
 
 	/*
-	 * Example to get the information about a stored resource. 
+	 * Example to get the information about a stored resource.
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = "/metadata")
+	@RequestMapping(method = RequestMethod.GET, value = "/rest/metadata")
 	public @ResponseBody
 	Metadata getResourceMetadata(HttpServletRequest request)
 			throws FilestorageException {
-		List<Metadata> list = filestorage.getAllResourceMetadataByApp(getToken(request), 0, 1);
-		if (list != null && ! list.isEmpty()) return list.get(0);
+		List<Metadata> list = filestorage.getAllResourceMetadataByApp(
+				getToken(request), 0, 1);
+		if (list != null && !list.isEmpty())
+			return list.get(0);
 		return null;
 	}
-
-
 
 	/*
 	 * Example to get some social information about a user. Example shows how
 	 * retrieve the group created by the user
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = "/group")
+	@RequestMapping(method = RequestMethod.GET, value = "/rest/group")
 	public @ResponseBody
-	List<Group> getUsergroups(HttpServletRequest request) throws SecurityException, SocialServiceException {
+	List<Group> getUsergroups(HttpServletRequest request)
+			throws SecurityException, SocialServiceException {
 		return socialService.getUserGroups(getToken(request)).getContent();
 	}
 
 	/**
-	 * Here we assume that the access token is placed in the current security context by the PRE_AUTH_FILTER
+	 * Here we assume that the access token is placed in the current security
+	 * context by the PRE_AUTH_FILTER
+	 * 
 	 * @return
 	 */
 	private String getToken(HttpServletRequest request) {
-		return (String)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return (String) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
 	}
-
 
 }

@@ -28,9 +28,19 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.ws.Response;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.params.ConnManagerParams;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.util.EntityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,7 +48,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
 
 import eu.trentorise.smartcampus.aac.AACException;
 import eu.trentorise.smartcampus.aac.AACService;
@@ -67,6 +76,8 @@ import eu.trentorise.smartcampus.territoryservice.model.ObjectFilter;
 @Controller
 public class ExampleController {
 
+	private static final String client_secret = "8fa7819d-9fa1-4fbd-8fef-e3873df7dd85";
+	private static final String client_id = "a5d402a1-8fcc-46b0-993e-bd97e37eef9c";
 	private BasicProfileService profileService = new BasicProfileService(
 			"https://vas-dev.smartcampuslab.it/aac");
 	private MobilityDataService mobilityDataService = new MobilityDataService(
@@ -82,8 +93,8 @@ public class ExampleController {
 			"https://vas-dev.smartcampuslab.it/core.social");
 	private AACService aacService = new AACService(
 			"https://vas-dev.smartcampuslab.it/aac",
-			"a5d402a1-8fcc-46b0-993e-bd97e37eef9c",
-			"8fa7819d-9fa1-4fbd-8fef-e3873df7dd85");
+			client_id,
+			client_secret);
 	
 	
 	private String userToken="";
@@ -112,11 +123,13 @@ public class ExampleController {
 			BasicProfile bp=profileService.getBasicProfile(userToken);
 			model.put("name", bp.getName());	
 			model.put("surname", bp.getSurname());	
+			
 		 return new ModelAndView("secure",model);
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/check")
 	public ModelAndView securePage(HttpServletRequest request,@RequestParam(required=false) String code) throws SecurityException, AACException {
+		if(code!=null){
 		
 		String redirectUri = "http://localhost:8080/web-template/check";	
 
@@ -124,6 +137,10 @@ public class ExampleController {
 		userToken= aacService.exchngeCodeForToken(code, redirectUri).getAccess_token();		
 
 		return new ModelAndView("redirect:/secure");
+		}
+		else{
+			return new ModelAndView("redirect:/");
+		}
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/login")
@@ -132,9 +149,19 @@ public class ExampleController {
 
 		return new ModelAndView("redirect:"
 				+ aacService.generateAuthorizationURIForCodeFlow(redirectUri,
+					
 						null, "smartcampus.profile.basicprofile.me", null));
 	}
 	
+	
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/implicit")
+	public ModelAndView implicit(HttpServletRequest request,@RequestParam(required=false) String token) throws AACException {
+		
+		userToken=token;
+        
+		return new ModelAndView("redirect:/secure");
+	}
 	
 
 	/*

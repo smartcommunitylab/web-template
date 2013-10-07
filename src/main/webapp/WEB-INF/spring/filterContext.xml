@@ -45,7 +45,7 @@
 		 <sec:custom-filter position="PRE_AUTH_FILTER" ref="authTokenFilter" /> 
 		 <sec:intercept-url pattern="/**" access="isFullyAuthenticated()" />			
 	</sec:http>
-	 <sec:http pattern="/web/**"  disable-url-rewriting="true">
+	 <sec:http pattern="/web/**"  disable-url-rewriting="true" create-session="stateless">
         <sec:intercept-url pattern="/**" access="IS_AUTHENTICATED_FULLY" />              
          <sec:form-login login-page="/login" /> 
         <sec:logout invalidate-session="true" logout-url="/logout" delete-cookies="JSESSIONID,open_id_session_id,vasdevgoogle" logout-success-url="/"/>

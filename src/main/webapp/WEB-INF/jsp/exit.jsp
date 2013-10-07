@@ -33,43 +33,11 @@ body {
 <script src="js/services.js"></script>
 </head>
 
-<body>
+<body >
+<script language="javascript">
 
 
-	<div ng-controller="SecureController" class="container">
-		<h1>Welcome in security Oauth2</h1>
-
-
-
-		<form ng-submit="">
-			<fieldset>
-				<legend>UserData </legend>
-
-				<div class="row-fluid">
-					<div class="span3 ">
-						<strong>Name</strong>
-					</div>
-					<div class="span5 "><%=request.getAttribute("name")%></div>
-					<div class="span4 "></div>
-				</div>
-				<div class="row-fluid">
-					<div class="span3 ">
-						<strong>Surname</strong>
-					</div>
-					<div class="span5 "><%=request.getAttribute("surname")%></div>
-					<div class="span4 "></div>
-				</div>
-				<div class="row-fluid">
-					<div class="span3 ">
-						<strong>Token</strong>
-					</div>
-					<div class="span5 "><%=request.getAttribute("token")%> {{implicitToken}}</div>
-					<div class="span4 "></div>
-				</div>
-
-
-			</fieldset>
-		</form>
-	</div>
+close();
+</script>
 </body>
 </html>

@@ -103,7 +103,7 @@ public class ExampleController {
 		super();
 		try {
 			communicatorConnector = new CommunicatorConnector(
-					"https://vas-dev.smartcampuslab.it/core.communicator", "rk");
+					"https://vas-dev.smartcampuslab.it/core.communicator", "web-template");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -114,37 +114,41 @@ public class ExampleController {
 
 		return "index";
 	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/exit")
+	public String exit(HttpServletRequest request) {
+
+		return "exit";
+	}
+	
 	@RequestMapping(method = RequestMethod.GET, value = "/secure")
 	public ModelAndView x(HttpServletRequest request) throws SecurityException, ProfileServiceException {
-		 
-		
-			Map<String,Object> model = new HashMap<String, Object>();	
+		Map<String,Object> model = new HashMap<String, Object>();	
+		if(userToken!=null && userToken.compareTo("")!=0){
+			
 			model.put("token", userToken);	
 			BasicProfile bp=profileService.getBasicProfile(userToken);
 			model.put("name", bp.getName());	
 			model.put("surname", bp.getSurname());	
-			
+		}
 		 return new ModelAndView("secure",model);
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/check")
 	public ModelAndView securePage(HttpServletRequest request,@RequestParam(required=false) String code) throws SecurityException, AACException {
-		if(code!=null){
+		
 		
 		String redirectUri = "http://localhost:8080/web-template/check";	
 
 		
 		userToken= aacService.exchngeCodeForToken(code, redirectUri).getAccess_token();		
 
-		return new ModelAndView("redirect:/secure");
-		}
-		else{
-			return new ModelAndView("redirect:/");
-		}
+		return new ModelAndView("redirect:/secure");		
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/login")
 	public ModelAndView secure(HttpServletRequest request) {
+		userToken=null;
 		String redirectUri = "http://localhost:8080/web-template/check";
 
 		return new ModelAndView("redirect:"
@@ -154,14 +158,14 @@ public class ExampleController {
 	}
 	
 	
-	
-	@RequestMapping(method = RequestMethod.GET, value = "/implicit")
-	public ModelAndView implicit(HttpServletRequest request,@RequestParam(required=false) String token) throws AACException {
-		
-		userToken=token;
-        
-		return new ModelAndView("redirect:/secure");
-	}
+//	
+//	@RequestMapping(method = RequestMethod.GET, value = "/implicit")
+//	public ModelAndView implicit(HttpServletRequest request,@RequestParam(required=false) String token) throws AACException {
+//		
+//		userToken=token;
+//        
+//		return new ModelAndView("redirect:/secure");
+//	}
 	
 
 	/*

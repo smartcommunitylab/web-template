@@ -39,12 +39,12 @@ public class ExampleController {
 	 * INSERT A VALID CLIENT_ID AND CLIENT_SECRET CODES FROM SMARTCOMMUNITY
 	 * PERMISSION PROVIDER
 	 */
-	private static final String CLIENT_ID = "";
-	private static final String CLIENT_SECRET = "";
+	private static final String CLIENT_ID = "ac3cc8c4-729f-4ffb-8715-d0fa45eccddb";
+	private static final String CLIENT_SECRET = "10000867-295e-48ea-b544-1fcd58d1154d";
 
 	private static final String PROFILE_SERVICE_ENDPOINT = "https://dev.smartcommunitylab.it/aac";
 	private static final String AAC_SERVICE_ENDPOINT = "https://dev.smartcommunitylab.it/aac";
-	private static final String REDIRECT_URI = "http://localhost:8080/web-template/check";
+	private static final String REDIRECT_URI = "http://localhost:8080/webtemplate.oauth2/check";
 
 	private BasicProfileService profileService = new BasicProfileService(
 			PROFILE_SERVICE_ENDPOINT);

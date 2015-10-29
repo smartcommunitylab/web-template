@@ -18,7 +18,7 @@
 	<mvc:annotation-driven/>
 
 	<!-- Scan controllers in this package -->
-	<context:component-scan base-package="smartcampus.webtemplate.controllers"/>
+	<context:component-scan base-package="it.smartcommunitylab.webtemplate.controllers"/>
 	
 		<bean id="viewResolver"
 		class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">

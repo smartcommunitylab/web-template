@@ -57,6 +57,6 @@
 				</configuration>
 			</plugin>
 		</plugins>
-		<finalName>casdemo</finalName>
+		<finalName>webtemplate.cas</finalName>
 	</build>
 </project>

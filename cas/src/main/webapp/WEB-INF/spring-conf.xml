@@ -8,18 +8,22 @@
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
+    
+    <!-- Configuration for the environment can be overriden by system properties -->
+	<context:property-placeholder
+		system-properties-mode="OVERRIDE" properties-ref="environment" />
+	<util:properties id="environment">
+		<b:prop key="cas.server.endpoint">https://dev.smartcommunitylab.it/aac/cas
+		</b:prop>
+	</util:properties>
+    
+    
 	<http entry-point-ref="casEntryPoint" use-expressions="true">
 		<intercept-url pattern="/" access="permitAll" />
 		<intercept-url pattern="/index.jsp" access="permitAll" />
-		<!-- <intercept-url pattern="/cas-logout.jsp" access="permitAll" /> <intercept-url 
-			pattern="/casfailed.jsp" access="permitAll" /> -->
 
 		<intercept-url pattern="/secret.jsp" access="isAuthenticated()" />
-		<!-- <custom-filter ref="requestSingleLogoutFilter" before="LOGOUT_FILTER" 
-			/> -->
-		<!-- <custom-filter ref="singleLogoutFilter" before="CAS_FILTER" /> -->
 		<custom-filter ref="casFilter" position="CAS_FILTER" />
-		<!-- <logout logout-success-url="/cas-logout.jsp" /> -->
 	</http>
 
 	<authentication-manager alias="authManager">
@@ -27,22 +31,12 @@
 	</authentication-manager>
 
 
-	<!-- This filter handles a Single Logout Request from the CAS Server -->
-	<!-- <b:bean id="singleLogoutFilter" class="org.jasig.cas.client.session.SingleSignOutFilter" 
-		/> -->
-	<!-- This filter redirects to the CAS Server to signal Single Logout should 
-		be performed -->
-	<!-- <b:bean id="requestSingleLogoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter" 
-		p:filterProcessesUrl="/logout/cas"> <b:constructor-arg value="https://${cas.server.host}/cas/logout" 
-		/> <b:constructor-arg> <b:bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler" 
-		/> </b:constructor-arg> </b:bean> -->
-
 	<b:bean id="serviceProperties" class="org.springframework.security.cas.ServiceProperties"
-		p:service="http://localhost:8080/welive.casdemo/j_spring_cas_security_check" />
+		p:service="http://localhost:8080/webtemplate.cas/j_spring_cas_security_check" />
 
 	<b:bean id="casEntryPoint"
 		class="org.springframework.security.cas.web.CasAuthenticationEntryPoint"
-		p:serviceProperties-ref="serviceProperties" p:loginUrl="${cas.login.url}" />
+		p:serviceProperties-ref="serviceProperties" p:loginUrl="${cas.server.endpoint}/login" />
 
 	<b:bean id="casFilter"
 		class="org.springframework.security.cas.web.CasAuthenticationFilter">
@@ -54,26 +48,15 @@
 		class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
 		<b:property name="authenticationUserDetailsService">
 			<b:bean
-				class="it.smartcommunitylab.casdemo.CasUserDetailWrapper">
+				class="it.smartcommunitylab.webtemplate.CasUserDetailWrapper">
 			</b:bean>
 		</b:property>
 		<b:property name="serviceProperties" ref="serviceProperties" />
 		<b:property name="ticketValidator">
 			<b:bean class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
-				<b:constructor-arg index="0" value="${cas.validate.url}" />
+				<b:constructor-arg index="0" value="${cas.server.endpoint}" />
 			</b:bean>
 		</b:property>
 		<b:property name="key" value="demo-provider-id" />
 	</b:bean>
-
-
-	<!-- Configuration for the environment can be overriden by system properties -->
-	<context:property-placeholder
-		system-properties-mode="OVERRIDE" properties-ref="environment" />
-	<util:properties id="environment">
-		<b:prop key="cas.login.url">https://dev.smartcommunitylab.it/aac/cas/login
-		</b:prop>
-		<b:prop key="cas.validate.url">https://dev.smartcommunitylab.it/aac/cas
-		</b:prop>
-	</util:properties>
 </b:beans>

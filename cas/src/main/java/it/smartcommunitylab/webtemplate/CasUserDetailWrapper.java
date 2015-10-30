@@ -1,8 +1,8 @@
 package it.smartcommunitylab.webtemplate;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.jasig.cas.client.validation.Assertion;
 import org.springframework.security.cas.authentication.CasAssertionAuthenticationToken;
@@ -23,17 +23,16 @@ public class CasUserDetailWrapper implements
 
 		final List<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>();
 
-		Set attrs = a.getAttributes().keySet();
+		Collection attrs = a.getPrincipal().getAttributes().values();
 
 		for (final Object attr : attrs) {
-			final Object value = a.getPrincipal().getAttributes().get(attr);
 
-			if (value == null) {
+			if (attr == null) {
 				continue;
 			}
 
-			if (value instanceof List) {
-				final List list = (List) value;
+			if (attr instanceof List) {
+				final List list = (List) attr;
 
 				for (final Object o : list) {
 					grantedAuthorities.add(new SimpleGrantedAuthority(o
@@ -41,8 +40,10 @@ public class CasUserDetailWrapper implements
 				}
 
 			} else {
-				grantedAuthorities.add(new SimpleGrantedAuthority(value
-						.toString()));
+				if (attr.toString().trim().length() > 0) {
+					grantedAuthorities.add(new SimpleGrantedAuthority(attr
+							.toString()));
+				}
 			}
 
 		}

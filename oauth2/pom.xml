@@ -136,8 +136,8 @@
 	</build>
 	<repositories>
 		<repository>
-			<id>SmartCampus</id>
-			<url>http://repository.smartcampuslab.it/content/groups/public</url>
+			<id>SmartCommunityLab</id>
+			<url>http://repository.smartcommunitylab.it/content/groups/public</url>
 		</repository>
 	</repositories>
 

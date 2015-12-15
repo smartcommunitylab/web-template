@@ -35,13 +35,12 @@ import eu.trentorise.smartcampus.profileservice.model.BasicProfile;
 
 @Controller
 public class ExampleController {
-
 	/**
 	 * INSERT A VALID CLIENT_ID AND CLIENT_SECRET CODES FROM SMARTCOMMUNITY
 	 * PERMISSION PROVIDER
 	 */
-	private static final String CLIENT_ID = "";
-	private static final String CLIENT_SECRET = "";
+	private static final String CLIENT_ID = "18f6db6f-398c-4ee3-b341-662c4b58786d";
+	private static final String CLIENT_SECRET = "4796ea88-0506-4727-a7ad-f8766d5231fb";
 
 	private static final String PROFILE_SERVICE_ENDPOINT = "https://dev.smartcommunitylab.it/aac";
 	private static final String AAC_SERVICE_ENDPOINT = "https://dev.smartcommunitylab.it/aac";
@@ -53,8 +52,6 @@ public class ExampleController {
 	private AACService aacService = new AACService(AAC_SERVICE_ENDPOINT,
 			CLIENT_ID, CLIENT_SECRET);
 
-	private String userToken = "";
-
 	@RequestMapping(method = RequestMethod.GET, value = "/")
 	public String index(HttpServletRequest request) {
 
@@ -65,6 +62,8 @@ public class ExampleController {
 	public ModelAndView x(HttpServletRequest request) throws SecurityException,
 			ProfileServiceException {
 		Map<String, Object> model = new HashMap<String, Object>();
+		String userToken = (String) request.getSession().getAttribute(
+				"accessToken");
 		if (userToken != null && userToken.compareTo("") != 0) {
 
 			model.put("token", userToken);
@@ -80,15 +79,14 @@ public class ExampleController {
 			@RequestParam(required = false) String code)
 			throws SecurityException, AACException {
 
-		userToken = aacService.exchngeCodeForToken(code, REDIRECT_URI)
+		String userToken = aacService.exchngeCodeForToken(code, REDIRECT_URI)
 				.getAccess_token();
-
+		request.getSession().setAttribute("accessToken", userToken);
 		return new ModelAndView("redirect:/secure");
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/login")
 	public ModelAndView secure(HttpServletRequest request) {
-		userToken = null;
 
 		return new ModelAndView("redirect:"
 				+ aacService.generateAuthorizationURIForCodeFlow(REDIRECT_URI,
